@@ -10,3 +10,8 @@ debug.sf.enable_adpf_cpu_hint=true
 persist.vendor.qcom.bluetooth.soc=cherokee
 persist.vendor.qcom.bluetooth.enable.splita2dp=true
 ro.vendor.qti.am.res_boost_limit=2
+
+# HWUI
+ro.hwui.render_ahead=5
+debug.hwui.use_hint_manager=true
+debug.hwui.target_cpu_time_percent=30
