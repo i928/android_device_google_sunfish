@@ -10,6 +10,12 @@ TARGET_COMPILE_WITH_MSM_KERNEL := true
 TARGET_KERNEL_CONFIG := sunfish_defconfig
 TARGET_KERNEL_NO_GCC := true
 TARGET_KERNEL_SOURCE := kernel/google/msm-4.14
+
+# Kernel Clang: Clang 23 (r614150), the same kernel toolchain as crosshatch and
+# the Evolution X sunfish build. It lives in prebuilts/clang/kernel (not the
+# platform prebuilts/clang/host). Unset both lines for the LineageOS default.
+TARGET_KERNEL_CLANG_VERSION := r614150
+TARGET_KERNEL_CLANG_PATH := $(abspath .)/prebuilts/clang/kernel/$(HOST_PREBUILT_TAG)/clang-$(TARGET_KERNEL_CLANG_VERSION)
 TARGET_NEEDS_DTBOIMAGE := true
 
 # Partitions
