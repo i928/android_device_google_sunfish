@@ -106,3 +106,12 @@ PRODUCT_PACKAGES += \
 
 # Properties
 TARGET_VENDOR_PROP := $(LOCAL_PATH)/vendor.prop
+
+# Updater: OTA feed in github.com/i928/OTA (branch lineage-23.2, Updater API v2
+# = JSON list), zips on SourceForge androidos/sunfish/lineage-23.2 (not
+# android16, which holds the Evolution X builds); written and pushed by
+# ~/bin/deploy_ota.sh. allow_major_upgrades lets the Updater install a newer
+# major version.
+PRODUCT_PRODUCT_PROPERTIES += \
+    lineage.updater.uri=https://raw.githubusercontent.com/i928/OTA/lineage-23.2/builds/{device}.json \
+    lineage.updater.allow_major_upgrades=true
