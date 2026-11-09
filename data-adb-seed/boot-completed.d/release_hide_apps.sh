@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# Release builds in transition (SUNFISH_RELEASE_TRANSITION=1, device.mk) still
+# Release builds in transition (LIN23_SUNFISH_RELEASE_TRANSITION=1, device.mk) still
 # bake extra apps that release.txt leaves out, so phones updated over the air
 # keep them with their data. ro.sunfish.release_hidden_apps names them; on the
 # first boot after a wipe -- the device not yet provisioned -- uninstall them

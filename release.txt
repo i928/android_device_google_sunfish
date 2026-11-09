@@ -1,4 +1,4 @@
-# What a release build ships (SUNFISH_RELEASE=1). Personal builds ignore this
+# What a release build ships (LIN23_SUNFISH_RELEASE=1). Personal builds ignore this
 # file and ship everything present.
 #
 # One entry per line, matched as a SUBSTRING of the filename, so version bumps

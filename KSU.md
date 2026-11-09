@@ -27,7 +27,7 @@ The ROM side:
   (`lib/arm64-v8a/`). They ship in `/system_ext/etc/ksu/`, where
   `init.ksu-autoinstall.rc` seeds `/data/adb/ksud` from, whatever manager is
   installed.
-- Release builds (`SUNFISH_RELEASE=1`) bake no manager. They ship the official
+- Release builds (`LIN23_SUNFISH_RELEASE=1`) bake no manager. They ship the official
   manager APK, `ksu-official/KernelSUNext-official.apk` (untouched, official
   signature), and `install-apps.sh` installs it as a normal user app after
   setup, so it updates itself. Pair them with `pr-ksu`.
@@ -101,7 +101,7 @@ snapshot whenever a module is added or updated.
 
 ## Release builds
 
-`SUNFISH_RELEASE=1` ships only what `release.txt` lists. Each entry matches as a
+`LIN23_SUNFISH_RELEASE=1` ships only what `release.txt` lists. Each entry matches as a
 substring of a file name in `ksu-autoinstall/` and `prebuilts/extra-apps`.
 Personal items are left out this way: `shell-root.allowlist`, which gives root
 to anyone with adb, and `ksu_script.sh`.

@@ -61,7 +61,7 @@ BUILD_BROKEN_ELF_PREBUILT_PRODUCT_COPY_FILES := true
 # Board config cannot see device.mk's app list, so repeat its decision: the app
 # ships unless a release build past the transition leaves it out of release.txt.
 SUNFISH_KSU_APP := $(wildcard device/google/sunfish/prebuilts/extra-apps/prebuilt/KernelSUNext.apk)
-ifeq ($(SUNFISH_RELEASE)$(or $(SUNFISH_RELEASE_TRANSITION),1),10)
+ifeq ($(LIN23_SUNFISH_RELEASE)$(or $(LIN23_SUNFISH_RELEASE_TRANSITION),1),10)
 ifeq ($(filter KernelSUNext,$(shell sed -e 's/#.*//' device/google/sunfish/release.txt 2>/dev/null)),)
 SUNFISH_KSU_APP :=
 endif

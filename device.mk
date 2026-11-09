@@ -677,29 +677,29 @@ PRODUCT_VENDOR_PROPERTIES += ro.soc.model=SM7150
 # run.sh, copied in by publish.sh). A freshly synced tree has none of it and
 # must still build, so every reference below is a $(wildcard) and simply
 # yields nothing when the directory is absent.
-# SUNFISH_RELEASE=1 marks a build meant for other people. What such a build
+# LIN23_SUNFISH_RELEASE=1 marks a build meant for other people. What such a build
 # ships is listed in release.txt, one entry per line, matched as a substring of
 # the filename so version bumps need no edit there. Anything unlisted is left
 # out -- which is how shell-root.allowlist (adb root for anyone) and
 # ksu_script.sh (this user's YouTube hiding) stay out of a published build.
 # Personal builds ignore the file and ship everything present.
-SUNFISH_RELEASE ?= 0
+LIN23_SUNFISH_RELEASE ?= 0
 
-SUNFISH_RELEASE_LIST := $(shell sed -e 's/#.*//' device/google/sunfish/release.txt 2>/dev/null)
+LIN23_SUNFISH_RELEASE_LIST := $(shell sed -e 's/#.*//' device/google/sunfish/release.txt 2>/dev/null)
 # $(call sunfish-release-filter,<paths>) -> those whose basename contains a listed entry
 sunfish-release-filter = $(foreach f,$(1),\
-    $(if $(strip $(foreach e,$(SUNFISH_RELEASE_LIST),$(findstring $(e),$(notdir $(f))))),$(f)))
+    $(if $(strip $(foreach e,$(LIN23_SUNFISH_RELEASE_LIST),$(findstring $(e),$(notdir $(f))))),$(f)))
 
 # Transition for preinstalled apps that release.txt leaves out. Removing an app
 # from /product makes PackageManager delete it, data included, on the phones of
-# existing users. While SUNFISH_RELEASE_TRANSITION=1, a release build still
+# existing users. While LIN23_SUNFISH_RELEASE_TRANSITION=1, a release build still
 # bakes every extra app, and ro.sunfish.release_hidden_apps names the ones
 # release.txt leaves out: data-adb-seed's release_hide_apps.sh uninstalls them
 # for user 0 on the first boot after a wipe (not yet provisioned), so new users
 # never see them, while a phone updated over the air keeps them. Set it to 0
 # once existing users have had time to move: those apps then leave /product.
-SUNFISH_RELEASE_TRANSITION ?= 1
-ifeq ($(SUNFISH_RELEASE)$(SUNFISH_RELEASE_TRANSITION),11)
+LIN23_SUNFISH_RELEASE_TRANSITION ?= 1
+ifeq ($(LIN23_SUNFISH_RELEASE)$(LIN23_SUNFISH_RELEASE_TRANSITION),11)
 sunfish_empty :=
 sunfish_space := $(sunfish_empty) $(sunfish_empty)
 sunfish_comma := ,
@@ -710,7 +710,7 @@ PRODUCT_PRODUCT_PROPERTIES += \
     ro.sunfish.release_hidden_apps=$(subst $(sunfish_space),$(sunfish_comma),$(strip $(SUNFISH_HIDDEN_APPS)))
 endif
 
-ifeq ($(SUNFISH_RELEASE)$(SUNFISH_RELEASE_TRANSITION),10)
+ifeq ($(LIN23_SUNFISH_RELEASE)$(LIN23_SUNFISH_RELEASE_TRANSITION),10)
 # Only what release.txt names. Gboard ships as an .apks app set and needs its
 # privapp-permissions xml listed too, or it crashes on launch.
 USER_APPS_BP := $(call sunfish-release-filter,\
@@ -744,7 +744,7 @@ endif
 # release.txt leaves out (jni/<app>/ is named after <app>.apk), or /product
 # gets lib folders with no apk beside them. (Not during the transition, which
 # still bakes every app.)
-ifeq ($(SUNFISH_RELEASE)$(SUNFISH_RELEASE_TRANSITION),10)
+ifeq ($(LIN23_SUNFISH_RELEASE)$(LIN23_SUNFISH_RELEASE_TRANSITION),10)
 SUNFISH_JNI_DROP := $(foreach a,$(notdir $(wildcard device/google/sunfish/prebuilts/extra-apps/prebuilt/jni/*)),\
     $(if $(strip $(call sunfish-release-filter,$(a).apk)),,$(a)))
 PRODUCT_COPY_FILES := $(foreach f,$(PRODUCT_COPY_FILES),\
@@ -754,7 +754,7 @@ endif
 # ~/extraAPKs/copy/*.apk -> prebuilt_etc precopy_<name> in /product/etc/precopy
 # (see run.sh), copied out by the precopy.sh boot script.
 PRECOPY_APKS := $(wildcard device/google/sunfish/prebuilts/extra-apps/prebuilt/precopy/*.apk)
-ifeq ($(SUNFISH_RELEASE),1)
+ifeq ($(LIN23_SUNFISH_RELEASE),1)
 PRECOPY_APKS := $(call sunfish-release-filter,$(PRECOPY_APKS))
 endif
 PRODUCT_PACKAGES += $(foreach apk,$(PRECOPY_APKS),precopy_$(basename $(notdir $(apk))))
@@ -763,7 +763,7 @@ PRODUCT_PACKAGES += $(foreach apk,$(PRECOPY_APKS),precopy_$(basename $(notdir $(
 # /product/etc/install-apps (see run.sh), installed by the install-apps.sh
 # boot script. They keep their own signature, so they update normally.
 USER_INSTALL_APKS := $(wildcard device/google/sunfish/prebuilts/extra-apps/prebuilt/install-apps/*.apk)
-ifeq ($(SUNFISH_RELEASE),1)
+ifeq ($(LIN23_SUNFISH_RELEASE),1)
 USER_INSTALL_APKS := $(call sunfish-release-filter,$(USER_INSTALL_APKS))
 endif
 PRODUCT_PACKAGES += $(foreach apk,$(USER_INSTALL_APKS),userapp_$(basename $(notdir $(apk))))
@@ -797,7 +797,7 @@ endif
 # Release builds: the official KernelSU-Next manager (ksu-official/), installed
 # as a normal user app after setup by install-apps.sh, so it keeps its official
 # signature and updates itself. No manager is baked into /product.
-ifeq ($(SUNFISH_RELEASE),1)
+ifeq ($(LIN23_SUNFISH_RELEASE),1)
 PRODUCT_PACKAGES += ksu_official_manager
 endif
 
@@ -822,7 +822,7 @@ PRODUCT_COPY_FILES += \
 # content like prebuilts/extra-apps above -- $(wildcard) yields nothing when the
 # directory is absent, so a freshly synced tree still builds.
 KSU_AUTOINSTALL_ZIPS := $(wildcard device/google/sunfish/ksu-autoinstall/*.zip)
-ifeq ($(SUNFISH_RELEASE),1)
+ifeq ($(LIN23_SUNFISH_RELEASE),1)
 KSU_AUTOINSTALL_ZIPS := $(call sunfish-release-filter,$(KSU_AUTOINSTALL_ZIPS))
 endif
 PRODUCT_COPY_FILES += $(foreach z,$(KSU_AUTOINSTALL_ZIPS),\
@@ -836,14 +836,14 @@ PRODUCT_COPY_FILES += $(foreach z,$(KSU_AUTOINSTALL_ZIPS),\
 # Grants root to everything it lists, com.android.shell included, i.e. to anyone
 # with adb access -- so it ships only if release.txt names it.
 KSU_AUTOINSTALL_ALLOWLIST := $(wildcard device/google/sunfish/ksu-autoinstall/*.allowlist)
-ifeq ($(SUNFISH_RELEASE),1)
+ifeq ($(LIN23_SUNFISH_RELEASE),1)
 KSU_AUTOINSTALL_ALLOWLIST := $(call sunfish-release-filter,$(KSU_AUTOINSTALL_ALLOWLIST))
 endif
 PRODUCT_COPY_FILES += $(foreach a,$(KSU_AUTOINSTALL_ALLOWLIST),\
     $(a):$(TARGET_COPY_OUT_PRODUCT)/etc/ksu-autoinstall/$(notdir $(a)))
 
 KSU_AUTOINSTALL_SCRIPTS := $(wildcard device/google/sunfish/ksu-autoinstall/scripts/*.sh)
-ifeq ($(SUNFISH_RELEASE),1)
+ifeq ($(LIN23_SUNFISH_RELEASE),1)
 KSU_AUTOINSTALL_SCRIPTS := $(call sunfish-release-filter,$(KSU_AUTOINSTALL_SCRIPTS))
 endif
 PRODUCT_COPY_FILES += $(foreach s,$(KSU_AUTOINSTALL_SCRIPTS),\
@@ -856,7 +856,7 @@ PRODUCT_COPY_FILES += $(foreach s,$(KSU_AUTOINSTALL_SCRIPTS),\
 # made from live in
 # ksu-autoinstall/installed-in-snapshot/, out of the *.zip wildcard above.
 KSU_SNAPSHOT := $(wildcard device/google/sunfish/ksu-autoinstall/snapshot/ksu-snapshot.tar.gz)
-ifeq ($(SUNFISH_RELEASE),1)
+ifeq ($(LIN23_SUNFISH_RELEASE),1)
 KSU_SNAPSHOT := $(call sunfish-release-filter,$(KSU_SNAPSHOT))
 endif
 PRODUCT_COPY_FILES += $(foreach t,$(KSU_SNAPSHOT),\
