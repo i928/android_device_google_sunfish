@@ -22,9 +22,8 @@ dontaudit system_server vendor_default_prop:file r_file_perms;
 
 # init's `restorecon --recursive /data` walks /data/adb after every
 # file_contexts change. KernelSU module trees there carry their own labels
-# (system_file, system_lib_file, dex2oat_exec, app_data_file) and must keep
+# (system_file, system_lib_file, app_data_file, ...) and must keep
 # them; the refusal is wanted, 1300 log lines per boot are not.
 dontaudit init { system_file system_lib_file }:{ file dir lnk_file } relabelfrom;
 dontaudit init system_file:sock_file getattr;
-dontaudit init dex2oat_exec:file getattr;
 dontaudit init app_data_file:file getattr;
