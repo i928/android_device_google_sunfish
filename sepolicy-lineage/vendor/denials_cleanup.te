@@ -10,6 +10,8 @@ allow hal_wifi_default location:unix_dgram_socket sendto;
 allow hal_wifi_default wifihal_socket:dir rw_dir_perms;
 allow hal_wifi_default wifihal_socket:sock_file create_file_perms;
 set_prop(hal_wifi_default, vendor_wifi_version)
+# ...and LOWI answers it.
+allow location hal_wifi_default:unix_dgram_socket sendto;
 
 # libperfmgr's power HAL asks the thermal HAL for throttling state (as on coral).
 hal_client_domain(hal_power_default, hal_thermal)
