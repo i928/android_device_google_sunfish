@@ -1,0 +1,30 @@
+# Denials seen on a clean LineageOS 23.2 install (2026-11-12).
+
+# The Wi-Fi HAL runs as hal_wifi_default here (stock: hal_wifi_ext, see
+# sepolicy/vendor/google/hal_wifi_ext.te). Give it the same LOWI socket access
+# and let it publish the driver/firmware version.
+allow hal_wifi_default location:unix_stream_socket connectto;
+allow hal_wifi_default location_socket:dir search;
+allow hal_wifi_default location_socket:sock_file write;
+allow hal_wifi_default location:unix_dgram_socket sendto;
+allow hal_wifi_default wifihal_socket:dir rw_dir_perms;
+allow hal_wifi_default wifihal_socket:sock_file create_file_perms;
+set_prop(hal_wifi_default, vendor_wifi_version)
+
+# libperfmgr's power HAL asks the thermal HAL for throttling state (as on coral).
+hal_client_domain(hal_power_default, hal_thermal)
+
+# Property reads that are probes, not needs (coral dontaudits the gnss one too).
+dontaudit hal_gnss_qti xtra_control_prop:file r_file_perms;
+dontaudit qtelephony default_prop:file r_file_perms;
+dontaudit audioserver vendor_default_prop:file r_file_perms;
+dontaudit system_server vendor_default_prop:file r_file_perms;
+
+# init's `restorecon --recursive /data` walks /data/adb after every
+# file_contexts change. KernelSU module trees there carry their own labels
+# (system_file, system_lib_file, dex2oat_exec, app_data_file) and must keep
+# them; the refusal is wanted, 1300 log lines per boot are not.
+dontaudit init { system_file system_lib_file }:{ file dir lnk_file } relabelfrom;
+dontaudit init system_file:sock_file getattr;
+dontaudit init dex2oat_exec:file getattr;
+dontaudit init app_data_file:file getattr;
