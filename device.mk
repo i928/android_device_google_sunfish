@@ -825,6 +825,13 @@ PRODUCT_COPY_FILES += \
 KSU_AUTOINSTALL_ZIPS := $(wildcard device/google/sunfish/ksu-autoinstall/*.zip)
 ifeq ($(LIN23_SUNFISH_RELEASE),1)
 KSU_AUTOINSTALL_ZIPS := $(call sunfish-release-filter,$(KSU_AUTOINSTALL_ZIPS))
+# The snapshot is a personal install (its modules, their settings, root
+# grants) and stays out of a release. Its modules that release.txt names must
+# then ship as zips instead, or the release has no ReZygisk, susfs, ...: take
+# them from installed-in-snapshot/, skipping any already in the top folder.
+KSU_AUTOINSTALL_ZIPS += $(foreach z,\
+    $(call sunfish-release-filter,$(wildcard device/google/sunfish/ksu-autoinstall/installed-in-snapshot/*.zip)),\
+    $(if $(filter $(notdir $(z)),$(notdir $(KSU_AUTOINSTALL_ZIPS))),,$(z)))
 endif
 PRODUCT_COPY_FILES += $(foreach z,$(KSU_AUTOINSTALL_ZIPS),\
     $(z):$(TARGET_COPY_OUT_PRODUCT)/etc/ksu-autoinstall/$(notdir $(z)))
