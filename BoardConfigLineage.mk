@@ -11,6 +11,10 @@ TARGET_KERNEL_CONFIG := sunfish_defconfig
 TARGET_KERNEL_NO_GCC := true
 TARGET_KERNEL_SOURCE := kernel/google/msm-4.14
 
+# KernelSU-Next takes its version name from `git describe --tags`, but repo
+# sync fetches no tags, so the manager showed v0.0.0. Pin the name.
+TARGET_KERNEL_ADDITIONAL_FLAGS += KSU_VERSION_TAG_OVERRIDE=v3.4.1
+
 # Kernel Clang: Clang 23 (r614150), the same kernel toolchain as crosshatch and
 # the Evolution X sunfish build. It lives in prebuilts/clang/kernel (not the
 # platform prebuilts/clang/host). Unset both lines for the LineageOS default.
