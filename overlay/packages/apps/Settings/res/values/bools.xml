@@ -17,4 +17,9 @@
 <resources>
     <!-- Whether to show a preference item for mobile plan -->
     <bool name="config_show_mobile_plan">false</bool>
+    <!-- Switch to an inserted removable SIM when no eSIM profile is enabled (and show the
+         notification). AOSP default is false; stock Pixel firmware turns it on. Without it a
+         device whose active slot is the eUICC never moves to the tray SIM (Settings logs
+         "SlotChangeReceiver: The flag is off. Ignore slot changes."). -->
+    <bool name="config_handle_sim_slot_change">true</bool>
 </resources>
