@@ -11,6 +11,41 @@ TARGET_KERNEL_CONFIG := sunfish_defconfig
 TARGET_KERNEL_NO_GCC := true
 TARGET_KERNEL_SOURCE := kernel/google/msm-4.14
 
+# SUNFISH_KERNEL_DEBUG=<variant> builds the kernel with the options of
+# $(TARGET_KERNEL_SOURCE)/build.config.sunfish_<variant> (kasan, khwasan,
+# debug_hang, debug_locking, debug_memory, debug_memory_accounting, debug_api,
+# no-cfi, performance). Those files are for Google's build/build.sh, which the
+# ROM build never reads; kernel-debug/buildconfig2frag.py turns their
+# scripts/config options into a fragment in out/, merged after sunfish_defconfig.
+# Generated at kati time, so it always matches the kernel branch checked out.
+# Most variants turn LTO/CFI off; flash the matching vendor.img (autorun does).
+# Debug kernels are slow: never use one for timing.
+#   SUNFISH_KERNEL_DEBUG=kasan m bootimage vendorimage
+ifneq ($(SUNFISH_KERNEL_DEBUG),)
+SUNFISH_KDEBUG_FRAG := $(OUT_DIR)/sunfish-kernel-debug/$(SUNFISH_KERNEL_DEBUG).config
+_kdebug := $(shell mkdir -p $(dir $(SUNFISH_KDEBUG_FRAG)) && \
+    python3 device/google/sunfish/kernel-debug/buildconfig2frag.py \
+    $(TARGET_KERNEL_SOURCE)/build.config.sunfish_$(SUNFISH_KERNEL_DEBUG) $(SUNFISH_KDEBUG_FRAG))
+ifeq ($(filter ok,$(_kdebug)),)
+$(error SUNFISH_KERNEL_DEBUG=$(SUNFISH_KERNEL_DEBUG): $(_kdebug))
+endif
+# $(warning), not $(info): Soong parses the board config stdout as KEY=value lines
+$(warning SUNFISH_KERNEL_DEBUG -> kernel fragment $(SUNFISH_KDEBUG_FRAG), $(_kdebug))
+TARGET_KERNEL_CONFIG_EXT += $(SUNFISH_KDEBUG_FRAG)
+ifneq ($(SUNFISH_KDEBUG_SURVEY),0)
+TARGET_KERNEL_CONFIG_EXT += device/google/sunfish/kernel-debug/survey.config
+endif
+ifneq ($(filter kasan khwasan,$(SUNFISH_KERNEL_DEBUG)),)
+TARGET_KERNEL_CONFIG_EXT += device/google/sunfish/kernel-debug/kasan-nokfence.config
+endif
+ifeq ($(SUNFISH_KERNEL_DEBUG),debug_api)
+# arm64 preallocates 4096 DMA-API entries; they run out ~17 s into boot and
+# DMA-API debugging then turns itself off.
+BOARD_KERNEL_CMDLINE += dma_debug_entries=262144
+endif
+endif
+
+
 # KernelSU-Next takes its version name from `git describe --tags`, but repo
 # sync fetches no tags, so the manager showed v0.0.0. Pin the name.
 TARGET_KERNEL_ADDITIONAL_FLAGS += KSU_VERSION_TAG_OVERRIDE=v3.4.1
