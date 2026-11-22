@@ -7,7 +7,8 @@
 # Kernel
 BOARD_KERNEL_IMAGE_NAME := Image.lz4
 TARGET_COMPILE_WITH_MSM_KERNEL := true
-TARGET_KERNEL_CONFIG := sunfish_defconfig
+# .opt variant: SCHEDSTATS + tracing off (see kernel arch/arm64/configs/sunfish_defconfig.md)
+TARGET_KERNEL_CONFIG := sunfish_defconfig.opt
 TARGET_KERNEL_NO_GCC := true
 TARGET_KERNEL_SOURCE := kernel/google/msm-4.14
 
