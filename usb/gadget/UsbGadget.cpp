@@ -67,6 +67,10 @@ V1_0::Status UsbGadget::tearDownGadget() {
     return Status::SUCCESS;
 }
 
+// UsbManager.FUNCTION_UVC == AIDL GadgetFunction::UVC; not in the HIDL 1.x enum,
+// the framework passes the bit through unchanged.
+static constexpr uint64_t kUvcFunction = 1ULL << 7;
+
 static V1_0::Status validateAndSetVidPid(uint64_t functions) {
     V1_0::Status ret = Status::SUCCESS;
     std::string vendorFunctions = getVendorFunctions();
@@ -211,6 +215,12 @@ static V1_0::Status validateAndSetVidPid(uint64_t functions) {
                 ALOGE("Invalid vendorFunctions set: %s", vendorFunctions.c_str());
             ret = setVidPid("0x18d1", "0x2d05");
             break;
+        case kUvcFunction:
+            ret = setVidPid("0x18d1", "0x4eed");
+            break;
+        case static_cast<uint64_t>(GadgetFunction::ADB) | kUvcFunction:
+            ret = setVidPid("0x18d1", "0x4eee");
+            break;
         default:
             ALOGE("Combination not supported");
             ret = Status::CONFIGURATION_NOT_SUPPORTED;
@@ -244,6 +254,16 @@ V1_0::Status UsbGadget::setupFunctions(uint64_t functions,
 
     if (addGenericAndroidFunctions(&monitorFfs, functions, &ffsEnabled, &i) != Status::SUCCESS)
         return Status::ERROR;
+
+    if ((functions & kUvcFunction) != 0) {
+        if (!::android::base::GetBoolProperty("ro.usb.uvc.enabled", false)) {
+            ALOGE("UVC function disabled by config");
+            return Status::ERROR;
+        }
+        ALOGI("setCurrentUsbFunctions uvc");
+        if (linkFunction("uvc.0", i++))
+            return Status::ERROR;
+    }
 
     std::string vendorFunctions = getVendorFunctions();
 
